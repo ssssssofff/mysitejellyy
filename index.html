@@ -70,6 +70,12 @@
             transition: 0.2s;
             box-shadow: 0 4px 0 #dbaa8a;
             border: 2px solid #ffdcc8;
+            user-select: none;
+        }
+
+        .nav-btn:hover {
+            background: #ffd8c4;
+            transform: translateY(-2px);
         }
 
         .nav-btn:active {
@@ -356,12 +362,11 @@
         </div>
 
         <div class="hero-gallery">
-            <!-- ЗАМЕНИТЕ НА СВОИ ФОТО -->
-            <img src="images/gummy-bears.jpg" alt="Мармелад мишки" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🐻'">
-            <img src="images/gummy-worms.jpg" alt="Мармелад червячки" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🐛'">
-            <img src="images/gummy-mix.jpg" alt="Мармеладный микс" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🌈'">
-            <img src="images/gummy-cola.jpg" alt="Кола ботлы" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🥤'">
-            <img src="images/gummy-ribbon.jpg" alt="Ленточки" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🎀'">
+            <img src="delfin.png" alt="Мармелад мишки" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🐻'">
+            <img src="banana.png" alt="Мармелад бананы" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🍌'">
+            <img src="mix.png" alt="Мармеладный микс" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🌈'">
+            <img src="ribbon-strawberry.png" alt="Ленточки клубника" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🍓'">
+            <img src="ribbon-cherry.png" alt="Ленточки вишня" onerror="this.src='https://placehold.co/300x300/fde8db/c45a4a?text=🍒'">
         </div>
 
         <div style="text-align: center; margin: 20px 0 10px;">
@@ -400,16 +405,15 @@
 
 <script>
     // ============================================================
-    //  ТОВАРЫ
+    //  ТОВАРЫ (все пути исправлены на .png)
     // ============================================================
     const products = [
-        { id: 1, name: 'Дельфинчики',         desc: '100 г', price: 150, img: 'images/delfin.jpg' },
-        { id: 2, name: 'Бананчики с нутеллой','desc: 100 г', price: 100, img: 'images/banana.jpg' },
-        { id: 3, name: 'Мармеладный микс',    desc: '200 г', price: 200, img: 'images/mix.jpg' },
-        { id: 4, name: 'Ленточки клубника',   desc: '100 г', price: 130, img: 'images/ribbon-strawberry.jpg' },
-        { id: 5, name: 'Ленточки вишня',      desc: '100 г', price: 130, img: 'images/ribbon-cherry.jpg' },
-        { id: 6, name: 'Ленточки бабл-гам',   desc: '100 г', price: 140, img: 'images/ribbon-bubblegum.jpg' },
-        { id: 7, name: 'Желейные с кофе',     desc: '120 г', price: 160, img: 'images/coffee-jelly.jpg' },
+        { id: 1, name: 'Дельфинчики',         desc: '100 г', price: 150, img: 'delfin.png' },
+        { id: 2, name: 'Бананчики с нутеллой','desc: 100 г', price: 100, img: 'banana.png' },
+        { id: 3, name: 'Мармеладный микс',    desc: '200 г', price: 200, img: 'mix.png' },
+        { id: 4, name: 'Ленточки клубника',   desc: '100 г', price: 130, img: 'ribbon-strawberry.png' },
+        { id: 5, name: 'Ленточки вишня',      desc: '100 г', price: 130, img: 'ribbon-cherry.png' },
+        { id: 6, name: 'Ленточки бабл-гам',   desc: '100 г', price: 140, img: 'bubblegum.png' },
     ];
 
     // ============================================================
@@ -438,12 +442,42 @@
     }
 
     // ============================================================
+    //  ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ
+    // ============================================================
+    function switchPage(pageId) {
+        console.log('Переключение на страницу:', pageId);
+        
+        // скрыть все страницы
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        
+        // показать нужную
+        const target = document.getElementById('page-' + pageId);
+        if (target) {
+            target.classList.add('active');
+        } else {
+            console.error('Страница не найдена:', 'page-' + pageId);
+            return;
+        }
+        
+        // обновить активные кнопки
+        document.querySelectorAll('.nav-btn[data-page]').forEach(b => {
+            b.classList.toggle('active', b.dataset.page === pageId);
+        });
+        
+        // если корзина — обновить содержимое
+        if (pageId === 'cart') {
+            renderCart();
+        }
+    }
+
+    // ============================================================
     //  ОТРИСОВКА КАТАЛОГА
     // ============================================================
     function renderCatalog() {
         const grid = document.getElementById('catalogGrid');
         if (!grid) return;
         grid.innerHTML = '';
+        
         products.forEach(p => {
             const inCart = cart[p.id] || 0;
             const card = document.createElement('div');
@@ -475,14 +509,14 @@
 
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const id = this.dataset.id;
+                const id = parseInt(this.dataset.id);
                 if (cart[id]) {
                     cart[id]++;
                 } else {
                     cart[id] = 1;
                 }
                 saveCart();
-                renderCatalog(); // обновим кнопки
+                renderCatalog();
                 renderCart();
             });
 
@@ -507,7 +541,7 @@
         let html = `<div class="cart-items">`;
         let total = 0;
         ids.forEach(id => {
-            const p = products.find(x => x.id == id);
+            const p = products.find(x => x.id == parseInt(id));
             if (!p) return;
             const qty = cart[id];
             const sum = p.price * qty;
@@ -560,26 +594,23 @@
     }
 
     // ============================================================
-    //  ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ
+    //  НАВИГАЦИЯ (исправленная)
     // ============================================================
-    function switchPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const target = document.getElementById('page-' + pageId);
-        if (target) target.classList.add('active');
-
-        document.querySelectorAll('.nav-btn[data-page]').forEach(b => {
-            b.classList.toggle('active', b.dataset.page === pageId);
+    function initNavigation() {
+        // Все кнопки с data-page
+        document.querySelectorAll('.nav-btn[data-page]').forEach(btn => {
+            // Удаляем старые обработчики, чтобы не было дублей
+            btn.removeEventListener('click', btn._clickHandler);
+            
+            btn._clickHandler = function(e) {
+                e.preventDefault();
+                const page = this.dataset.page;
+                switchPage(page);
+            };
+            
+            btn.addEventListener('click', btn._clickHandler);
         });
-
-        if (pageId === 'cart') renderCart();
     }
-
-    // навигация
-    document.querySelectorAll('.nav-btn[data-page]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            switchPage(this.dataset.page);
-        });
-    });
 
     // ============================================================
     //  ЗАПУСК
@@ -587,9 +618,10 @@
     renderCatalog();
     renderCart();
     updateCartUI();
+    initNavigation();
 
-    // если на главной — показываем её (активна по умолчанию)
     console.log('🍬 Gummy House загружен!');
+    console.log('Товаров в корзине:', getTotalItems());
 </script>
 
 </body>
